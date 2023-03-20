@@ -142,7 +142,7 @@ func GetPresencaAula(c *gin.Context) {
 	_idAula := c.Param("id_aula")
 	_idAluno := c.Param("id_aluno")
 
-	resp, err := http.Get(fmt.Sprintf(url+"/param1=%s/param2=%s", _idAluno, _idAula))
+	resp, err := http.Get(fmt.Sprintf(url+"/%s/%s", _idAluno, _idAula))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Internal server error",
