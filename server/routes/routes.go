@@ -23,7 +23,7 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 		aluno := main.Group("aluno", middlewares.Auth())
 		{
 			aluno.POST("/marcarPresenca", controllers.MarcarPresença)
-			// aluno.GET("/get/aulas/:aula_id/:aluno_id", controllers.GetPresencaAula)
+			aluno.GET("/get/aulas/:aula_id/:aluno_id", controllers.GetPresencaAula)
 		}
 
 		professor := main.Group("/professor", middlewares.Auth())
