@@ -82,7 +82,7 @@ func CreateProfessor(c *gin.Context) {
 
 func CreateAula(ctx *gin.Context) {
 	//post request
-	url := "localhost:5001/api/criar/aula"
+	url := "localhost:5001/api/aula/criar"
 	// var presencaAluno dtos.PresencaAluno
 	var aula dtos.Aula_dto
 
