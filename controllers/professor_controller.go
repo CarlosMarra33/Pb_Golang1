@@ -42,7 +42,7 @@ func LoginProfessor(ctx *gin.Context) {
 		return
 	}
 
-	token, err := services.NewJWTService().GenerateToken(prof.Email)
+	token, err := services.NewJWTService().GenerateToken(prof.ProfessorId)
 	if err != nil {
 		ctx.JSON(500, gin.H{
 			"error": err.Error(),
@@ -81,18 +81,11 @@ func CreateProfessor(c *gin.Context) {
 }
 
 func CreateAula(ctx *gin.Context) {
-	//post request
-	url := "localhost:5001/api/aula/criar"
-	// var presencaAluno dtos.PresencaAluno
+	
+	url := "http://localhost:5001/api/aula/criar"
+
 	var aula dtos.Aula_dto
 
-	// validate := middlewares.ValidateAlunoRole(ctx)
-	// if !validate {
-	// 	ctx.JSON(401, gin.H{
-	// 		"error": "",
-	// 	})
-	// 	return
-	// }
 
 	err := ctx.ShouldBindJSON(&aula)
 	if err != nil {
@@ -123,7 +116,7 @@ func CreateAula(ctx *gin.Context) {
 	resp, err := client.Do(req)
 	if err != nil {
 		ctx.JSON(400, gin.H{
-			"error": "requisição falhou",
+			"error": "requisição falhou"+ err.Error(), 
 		})
 		return
 	}

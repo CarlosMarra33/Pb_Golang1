@@ -1,6 +1,8 @@
 package dtos
 
 type PresencaAluno struct {
-	EmailAluno     string `json:"email-aluno"`
-	IdAula string `json:"aulaId"`
+	IdPresenca uint   `json:"idPresenca"`
+    IdAluno    int   `json:"alunoId"`
+    IdAula     int   `json:"aulaId"`
+    Tipo       string `json:"tipo"`
 }

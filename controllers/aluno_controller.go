@@ -4,12 +4,13 @@ import (
 	"application/controllers/dtos"
 	"application/database"
 	"application/models"
-	"application/server/middlewares"
 	"application/services"
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -42,7 +43,7 @@ func LoginAluno(ctx *gin.Context) {
 		return
 	}
 
-	token, err := services.NewJWTService().GenerateToken(aluno.Email)
+	token, err := services.NewJWTService().GenerateToken(aluno.AlunoId)
 	if err != nil {
 		ctx.JSON(500, gin.H{
 			"error": err.Error(),
@@ -81,16 +82,16 @@ func CreateAluno(ctx *gin.Context) {
 }
 
 func MarcarPresença(ctx *gin.Context) {
-	url := "localhost:5001/api/marcar/presença"
+	url := "http://localhost:5001/api/aula/presente"
 	var presencaAluno dtos.PresencaAluno
 
-	validate := middlewares.ValidateAlunoRole(ctx)
-	if !validate {
-		ctx.JSON(401, gin.H{
-			"error": "",
-		})
-		return
-	}
+	// validate := middlewares.ValidateAlunoRole(ctx)
+	// if !validate {
+	// 	ctx.JSON(401, gin.H{
+	// 		"error": "",
+	// 	})
+	// 	return
+	// }
 
 	err := ctx.ShouldBindJSON(&presencaAluno)
 	if err != nil {
@@ -99,6 +100,8 @@ func MarcarPresença(ctx *gin.Context) {
 		})
 		return
 	}
+
+	fmt.Println(presencaAluno)
 
 	jsonData, err := json.Marshal(presencaAluno)
 	if err != nil {
@@ -136,13 +139,15 @@ func MarcarPresença(ctx *gin.Context) {
 }
 
 func GetPresencaAula(c *gin.Context) {
-	url := "localhost:5001/api/get/presença"
+	url := "http://localhost:5001/api/presenca/getPresenca"
 	var response dtos.GetPresencaAula
 
-	_idAula := c.Param("id_aula")
-	_idAluno := c.Param("id_aluno")
+	idAula, _ := strconv.ParseInt(c.Param("aula_id"), 10, 64)
+	idAluno, _ := strconv.ParseInt(c.Param("aluno_id"), 10, 64)
 
-	resp, err := http.Get(fmt.Sprintf(url+"/%s/%s", _idAluno, _idAula))
+	fmt.Println(idAluno)
+	fmt.Println(idAula)
+	resp, err := http.Get(fmt.Sprintf(url+"/%d/%d", int(idAluno), int(idAula)))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Internal server error",
@@ -151,19 +156,24 @@ func GetPresencaAula(c *gin.Context) {
 	}
 	defer resp.Body.Close()
 
-	// body, err := ioutil.ReadAll(resp.Body)
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{
-	// 		"error": "Internal server error",
-	// 	})
-	// 	return
-	// }
-	err = json.NewDecoder(resp.Body).Decode(&response)
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Internal server error",
+		})
+		return
+	}
+
+	fmt.Println(resp.Body)
+	var r interface{}
+	err = json.Unmarshal(body, &r)
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Não foi possível mapear o JSON para a struct Response"})
 		return
 	}
+	fmt.Println(response)
 
-	c.JSON(200, response)
+	c.JSON(200, r)
 
 }
