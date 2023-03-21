@@ -85,14 +85,6 @@ func MarcarPresença(ctx *gin.Context) {
 	url := "http://localhost:5001/api/aula/presente"
 	var presencaAluno dtos.PresencaAluno
 
-	// validate := middlewares.ValidateAlunoRole(ctx)
-	// if !validate {
-	// 	ctx.JSON(401, gin.H{
-	// 		"error": "",
-	// 	})
-	// 	return
-	// }
-
 	err := ctx.ShouldBindJSON(&presencaAluno)
 	if err != nil {
 		ctx.JSON(400, gin.H{
@@ -129,9 +121,16 @@ func MarcarPresença(ctx *gin.Context) {
 		return
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode == http.StatusBadRequest {
 		ctx.JSON(400, gin.H{
 			"error": "NÃO FOI ",
+		})
+		return
+	}
+
+	if resp.StatusCode == http.StatusFound{
+		ctx.JSON(http.StatusFound, gin.H{
+			"error": "Presensa de hoje já foi marcada ",
 		})
 		return
 	}

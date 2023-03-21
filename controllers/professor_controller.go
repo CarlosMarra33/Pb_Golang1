@@ -7,12 +7,11 @@ import (
 	"application/services"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
-
-
 
 func LoginProfessor(ctx *gin.Context) {
 	db := database.GetDatabase()
@@ -81,11 +80,10 @@ func CreateProfessor(c *gin.Context) {
 }
 
 func CreateAula(ctx *gin.Context) {
-	
+
 	url := "http://localhost:5001/api/aula/criar"
 
 	var aula dtos.Aula_dto
-
 
 	err := ctx.ShouldBindJSON(&aula)
 	if err != nil {
@@ -116,7 +114,7 @@ func CreateAula(ctx *gin.Context) {
 	resp, err := client.Do(req)
 	if err != nil {
 		ctx.JSON(400, gin.H{
-			"error": "requisição falhou"+ err.Error(), 
+			"error": "requisição falhou" + err.Error(),
 		})
 		return
 	}
@@ -130,7 +128,37 @@ func CreateAula(ctx *gin.Context) {
 
 }
 
-// func vincularAluno(c *gin.Context){
-// 	url := "localhost:5001/api/criar/aula"
+func AtualizarPresença(ctx *gin.Context) {
+	url := "http://localhost:5001/api/presenca/atualzar"
 
-// }
+	var p dtos.PresencaAluno
+	err := ctx.ShouldBindJSON(&p)
+	if err != nil {
+		ctx.JSON(400, gin.H{
+			"error": "cannot bind JSON: " + err.Error(),
+		})
+		return
+	}
+	fmt.Println(p)
+	jsonData, err := json.Marshal(p)
+	if err != nil {
+		panic(err)
+	}
+	buffer := bytes.NewBuffer(jsonData)
+	req, err := http.NewRequest("PUT", url, buffer)
+	if err != nil {
+        panic(err)
+    }
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+    if err != nil {
+        panic(err)
+    }
+    defer resp.Body.Close()
+	if resp.StatusCode == http.StatusOK {
+       ctx.Status(200)
+    } else {
+        ctx.Status(400)
+    }
+}

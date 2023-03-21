@@ -26,11 +26,11 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 			aluno.GET("/get/aulas/:aula_id/:aluno_id", controllers.GetPresencaAula)
 		}
 
-		professor := main.Group("/professor", middlewares.Auth())
+		professor := main.Group("professor", middlewares.Auth())
 		{
 			professor.POST("/create", controllers.CreateProfessor)
 			professor.POST("/create/aula", controllers.CreateAula)
-			
+			professor.PUT("/atualizar", controllers.AtualizarPresença)
 		}
 	}
 	return router
