@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"application/controllers/dtos"
-	"application/database"
 	"application/models"
+	"application/repositories"
 	"application/services"
 	"bytes"
 	"encoding/json"
@@ -16,7 +16,7 @@ import (
 )
 
 func LoginAluno(ctx *gin.Context) {
-	db := database.GetDatabase()
+	service := services.NewAlunoService(repositories.Alunorepository{})
 	var login dtos.Login
 	err := ctx.ShouldBindJSON(&login)
 
@@ -26,27 +26,11 @@ func LoginAluno(ctx *gin.Context) {
 		})
 		return
 	}
+	token, err := service.LoginAluno(&login)
 
-	var aluno models.Aluno
-	dberr := db.Where("email = ?", login.Email).First(&aluno).Error
-	if dberr != nil {
+	if err != nil {
 		ctx.JSON(400, gin.H{
 			"error": "cannot find user",
-		})
-		return
-	}
-
-	if login.Password != aluno.Password {
-		ctx.JSON(401, gin.H{
-			"error": "invalid credentials",
-		})
-		return
-	}
-
-	token, err := services.NewJWTService().GenerateToken(aluno.AlunoId)
-	if err != nil {
-		ctx.JSON(500, gin.H{
-			"error": err.Error(),
 		})
 		return
 	}
@@ -54,29 +38,20 @@ func LoginAluno(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{
 		"token": token,
 	})
-
 }
 
 func CreateAluno(ctx *gin.Context) {
-	db := database.GetDatabase()
+	service := services.NewAlunoService(repositories.Alunorepository{})
 	var aluno models.Aluno
-	erro := ctx.ShouldBindJSON(&aluno)
-
-	if erro != nil {
-		ctx.JSON(400, gin.H{
-			"error": "Problema ao passar para JSON" + erro.Error(),
-		})
-		return
-	}
-
-	err := db.Create(&aluno).Error
+	err := ctx.ShouldBindJSON(&aluno)
 
 	if err != nil {
 		ctx.JSON(400, gin.H{
-			"error": "Problema ao criar aluno" + erro.Error(),
+			"error": "Problema ao passar para JSON" + err.Error(),
 		})
 		return
 	}
+	service.CreateAluno(&aluno)
 
 	ctx.Status(204)
 }
@@ -128,7 +103,7 @@ func MarcarPresença(ctx *gin.Context) {
 		return
 	}
 
-	if resp.StatusCode == http.StatusFound{
+	if resp.StatusCode == http.StatusFound {
 		ctx.JSON(http.StatusFound, gin.H{
 			"error": "Presensa de hoje já foi marcada ",
 		})
