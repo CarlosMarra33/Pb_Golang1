@@ -28,7 +28,7 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 
 		professor := main.Group("professor", middlewares.Auth())
 		{
-			professor.POST("/create", controllers.CreateProfessor)
+			// professor.POST("/create", controllers.CreateProfessor)
 			professor.POST("/create/aula", controllers.CreateAula)
 			professor.PUT("/atualizar", controllers.AtualizarPresença)
 		}
