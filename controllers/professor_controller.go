@@ -2,19 +2,19 @@ package controllers
 
 import (
 	"application/controllers/dtos"
-	"application/database"
 	"application/models"
+	"application/repositories"
 	"application/services"
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func LoginProfessor(ctx *gin.Context) {
-	db := database.GetDatabase()
+	// db := database.GetDatabase()
+	service := services.NewProfessorService(repositories.ProfessorRepository{})
 	var login dtos.Login
 	err := ctx.ShouldBindJSON(&login)
 
@@ -24,39 +24,39 @@ func LoginProfessor(ctx *gin.Context) {
 		})
 		return
 	}
-
-	var prof models.Professor
-	dberr := db.Where("email = ?", login.Email).First(&prof).Error
-	if dberr != nil {
+	token, err := service.LoginProfessor(&login)
+	// var prof models.Professor
+	// dberr := db.Where("email = ?", login.Email).First(&prof).Error
+	if err != nil {
 		ctx.JSON(400, gin.H{
 			"error": "cannot find user",
 		})
 		return
 	}
 
-	if login.Password != prof.Password {
-		ctx.JSON(401, gin.H{
-			"error": "invalid credentials",
-		})
-		return
-	}
+	// if login.Password != prof.Password {
+	// 	ctx.JSON(401, gin.H{
+	// 		"error": "invalid credentials",
+	// 	})
+	// 	return
+	// }
 
-	token, err := services.NewJWTService().GenerateToken(prof.ProfessorId)
-	if err != nil {
-		ctx.JSON(500, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
+	// token, err := services.NewJWTService().GenerateToken(prof.ProfessorId)
+	// if err != nil {
+	// 	ctx.JSON(500, gin.H{
+	// 		"error": err.Error(),
+	// 	})
+	// 	return
+	// }
 
 	ctx.JSON(200, gin.H{
 		"token": token,
 	})
-
 }
 
 func CreateProfessor(c *gin.Context) {
-	db := database.GetDatabase()
+	// db := database.GetDatabase()
+	service := services.NewProfessorService(repositories.ProfessorRepository{})
 	var professor models.Professor
 	err := c.ShouldBindJSON(&professor)
 
@@ -66,15 +66,15 @@ func CreateProfessor(c *gin.Context) {
 		})
 		return
 	}
+	service.CreateProfessor(&professor)
+	// err = db.Create(&professor).Error
 
-	err = db.Create(&professor).Error
-
-	if err != nil {
-		c.JSON(400, gin.H{
-			"error": "Problema ao criar aluno" + err.Error(),
-		})
-		return
-	}
+	// if err != nil {
+	// 	c.JSON(400, gin.H{
+	// 		"error": "Problema ao criar aluno" + err.Error(),
+	// 	})
+	// 	return
+	// }
 
 	c.Status(204)
 }
@@ -129,7 +129,7 @@ func CreateAula(ctx *gin.Context) {
 }
 
 func AtualizarPresença(ctx *gin.Context) {
-	url := "http://localhost:5001/api/presenca/atualzar"
+	url := "http://localhost:5001/api/presenca/atualizar"
 
 	var p dtos.PresencaAluno
 	err := ctx.ShouldBindJSON(&p)
@@ -139,7 +139,6 @@ func AtualizarPresença(ctx *gin.Context) {
 		})
 		return
 	}
-	fmt.Println(p)
 	jsonData, err := json.Marshal(p)
 	if err != nil {
 		panic(err)
@@ -147,18 +146,18 @@ func AtualizarPresença(ctx *gin.Context) {
 	buffer := bytes.NewBuffer(jsonData)
 	req, err := http.NewRequest("PUT", url, buffer)
 	if err != nil {
-        panic(err)
-    }
+		panic(err)
+	}
 	req.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
 	resp, err := client.Do(req)
-    if err != nil {
-        panic(err)
-    }
-    defer resp.Body.Close()
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusOK {
-       ctx.Status(200)
-    } else {
-        ctx.Status(400)
-    }
+		ctx.Status(200)
+	} else {
+		ctx.Status(400)
+	}
 }

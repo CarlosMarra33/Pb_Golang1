@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"application/controllers/dtos"
-	"application/database"
 	"application/models"
 	"application/services"
 	"bytes"
@@ -11,12 +10,41 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/gin-gonic/gin"
 )
 
-func LoginAluno(ctx *gin.Context) {
-	db := database.GetDatabase()
+type AlunoController struct {
+	alunoService services.AlunoService
+}
+
+func NewAlunoContoller(service services.AlunoService) *AlunoController {
+	prometheus.MustRegister(RequestsTotal)
+	prometheus.MustRegister(requestDurationHistogram)
+	return &AlunoController{alunoService: service}
+}
+
+var (
+	// Define o histograma para registrar os valores da duração de cada solicitação
+	requestDurationHistogram = prometheus.NewHistogram(prometheus.HistogramOpts{
+		Name:    "duracao_do_create",
+		Help:    "Duration of HTTP requests in seconds.",
+		Buckets: []float64{0.1, 0.5, 1, 2.5, 5, 10},
+	})
+)
+
+var (
+	RequestsTotal = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "todas_requests",
+		Help: "Total number of HTTP requests.",
+	})
+)
+
+func (ac *AlunoController) LoginAluno(ctx *gin.Context) {
+	// service := services.NewAlunoService(repositories.Alunorepository{})
 	var login dtos.Login
 	err := ctx.ShouldBindJSON(&login)
 
@@ -26,27 +54,11 @@ func LoginAluno(ctx *gin.Context) {
 		})
 		return
 	}
+	token, err := ac.alunoService.LoginAluno(&login)
 
-	var aluno models.Aluno
-	dberr := db.Where("email = ?", login.Email).First(&aluno).Error
-	if dberr != nil {
+	if err != nil {
 		ctx.JSON(400, gin.H{
 			"error": "cannot find user",
-		})
-		return
-	}
-
-	if login.Password != aluno.Password {
-		ctx.JSON(401, gin.H{
-			"error": "invalid credentials",
-		})
-		return
-	}
-
-	token, err := services.NewJWTService().GenerateToken(aluno.AlunoId)
-	if err != nil {
-		ctx.JSON(500, gin.H{
-			"error": err.Error(),
 		})
 		return
 	}
@@ -54,34 +66,33 @@ func LoginAluno(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{
 		"token": token,
 	})
-
 }
 
-func CreateAluno(ctx *gin.Context) {
-	db := database.GetDatabase()
+func (ac *AlunoController) CreateAluno(ctx *gin.Context) {
+	// service := services.NewAlunoService(repositories.Alunorepository{})
+
+	start := time.Now()
 	var aluno models.Aluno
-	erro := ctx.ShouldBindJSON(&aluno)
-
-	if erro != nil {
-		ctx.JSON(400, gin.H{
-			"error": "Problema ao passar para JSON" + erro.Error(),
-		})
-		return
-	}
-
-	err := db.Create(&aluno).Error
+	err := ctx.ShouldBindJSON(&aluno)
 
 	if err != nil {
 		ctx.JSON(400, gin.H{
-			"error": "Problema ao criar aluno" + erro.Error(),
+			"error": "Problema ao passar para JSON" + err.Error(),
 		})
 		return
 	}
 
+	RequestsTotal.Inc()
+
+	ac.alunoService.CreateAluno(&aluno)
+
 	ctx.Status(204)
+	duration := time.Since(start).Seconds()
+	requestDurationHistogram.Observe(duration)
+
 }
 
-func MarcarPresença(ctx *gin.Context) {
+func (ac *AlunoController) MarcarPresença(ctx *gin.Context) {
 	url := "http://localhost:5001/api/aula/presente"
 	var presencaAluno dtos.PresencaAluno
 
@@ -128,7 +139,7 @@ func MarcarPresença(ctx *gin.Context) {
 		return
 	}
 
-	if resp.StatusCode == http.StatusFound{
+	if resp.StatusCode == http.StatusFound {
 		ctx.JSON(http.StatusFound, gin.H{
 			"error": "Presensa de hoje já foi marcada ",
 		})
@@ -137,7 +148,7 @@ func MarcarPresença(ctx *gin.Context) {
 
 }
 
-func GetPresencaAula(c *gin.Context) {
+func (ac *AlunoController) GetPresencaAula(c *gin.Context) {
 	url := "http://localhost:5001/api/presenca/getPresenca"
 	var response dtos.GetPresencaAula
 
