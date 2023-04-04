@@ -4,6 +4,7 @@ import (
 	"application/controllers/dtos"
 	"application/models"
 	"application/repositories"
+	"fmt"
 )
 
 type AlunoService struct {
@@ -14,6 +15,8 @@ type AlunoService struct {
 func (a *AlunoService) CreateAluno(aluno *models.Aluno) string {
 	var email = aluno.Email
 	check := a.repo.ChecarEmailAluno(email)
+
+	fmt.Println("teste do service  ",check)
 	if check {
 		return "user ja exieste"
 	}

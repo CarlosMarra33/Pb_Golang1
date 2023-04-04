@@ -3,7 +3,6 @@ package controllers
 import (
 	"application/controllers/dtos"
 	"application/models"
-	"application/repositories"
 	"application/services"
 	"bytes"
 	"encoding/json"
@@ -11,12 +10,41 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/gin-gonic/gin"
 )
 
-func LoginAluno(ctx *gin.Context) {
-	service := services.NewAlunoService(repositories.Alunorepository{})
+type AlunoController struct {
+	alunoService services.AlunoService
+}
+
+func NewAlunoContoller(service services.AlunoService) *AlunoController {
+	prometheus.MustRegister(RequestsTotal)
+	prometheus.MustRegister(requestDurationHistogram)
+	return &AlunoController{alunoService: service}
+}
+
+var (
+	// Define o histograma para registrar os valores da duração de cada solicitação
+	requestDurationHistogram = prometheus.NewHistogram(prometheus.HistogramOpts{
+		Name:    "duracao_do_create",
+		Help:    "Duration of HTTP requests in seconds.",
+		Buckets: []float64{0.1, 0.5, 1, 2.5, 5, 10},
+	})
+)
+
+var (
+	RequestsTotal = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "todas_requests",
+		Help: "Total number of HTTP requests.",
+	})
+)
+
+func (ac *AlunoController) LoginAluno(ctx *gin.Context) {
+	// service := services.NewAlunoService(repositories.Alunorepository{})
 	var login dtos.Login
 	err := ctx.ShouldBindJSON(&login)
 
@@ -26,7 +54,7 @@ func LoginAluno(ctx *gin.Context) {
 		})
 		return
 	}
-	token, err := service.LoginAluno(&login)
+	token, err := ac.alunoService.LoginAluno(&login)
 
 	if err != nil {
 		ctx.JSON(400, gin.H{
@@ -40,8 +68,10 @@ func LoginAluno(ctx *gin.Context) {
 	})
 }
 
-func CreateAluno(ctx *gin.Context) {
-	service := services.NewAlunoService(repositories.Alunorepository{})
+func (ac *AlunoController) CreateAluno(ctx *gin.Context) {
+	// service := services.NewAlunoService(repositories.Alunorepository{})
+
+	start := time.Now()
 	var aluno models.Aluno
 	err := ctx.ShouldBindJSON(&aluno)
 
@@ -51,12 +81,18 @@ func CreateAluno(ctx *gin.Context) {
 		})
 		return
 	}
-	service.CreateAluno(&aluno)
+
+	RequestsTotal.Inc()
+
+	ac.alunoService.CreateAluno(&aluno)
 
 	ctx.Status(204)
+	duration := time.Since(start).Seconds()
+	requestDurationHistogram.Observe(duration)
+
 }
 
-func MarcarPresença(ctx *gin.Context) {
+func (ac *AlunoController) MarcarPresença(ctx *gin.Context) {
 	url := "http://localhost:5001/api/aula/presente"
 	var presencaAluno dtos.PresencaAluno
 
@@ -112,7 +148,7 @@ func MarcarPresença(ctx *gin.Context) {
 
 }
 
-func GetPresencaAula(c *gin.Context) {
+func (ac *AlunoController) GetPresencaAula(c *gin.Context) {
 	url := "http://localhost:5001/api/presenca/getPresenca"
 	var response dtos.GetPresencaAula
 
