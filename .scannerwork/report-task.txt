@@ -1,6 +1,6 @@
-projectKey=my-golang-api
+projectKey=pb1
 serverUrl=http://localhost:9000
 serverVersion=9.9.0.65466
-dashboardUrl=http://localhost:9000/dashboard?id=my-golang-api
-ceTaskId=AYdJh03NGBKzLMhpTxZ-
-ceTaskUrl=http://localhost:9000/api/ce/task?id=AYdJh03NGBKzLMhpTxZ-
+dashboardUrl=http://localhost:9000/dashboard?id=pb1
+ceTaskId=AYdJzM2RGBKzLMhpTxaR
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AYdJzM2RGBKzLMhpTxaR

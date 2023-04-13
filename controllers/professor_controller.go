@@ -12,6 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+
+
 func LoginProfessor(ctx *gin.Context) {
 	// db := database.GetDatabase()
 	service := services.NewProfessorService(repositories.ProfessorRepository{})
@@ -20,10 +22,11 @@ func LoginProfessor(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(400, gin.H{
-			"error": "cannot bind JSON: " + err.Error(),
+			"error": resposnseError + err.Error(),
 		})
 		return
 	}
+	
 	token, err := service.LoginProfessor(&login)
 	// var prof models.Professor
 	// dberr := db.Where("email = ?", login.Email).First(&prof).Error
@@ -88,7 +91,7 @@ func CreateAula(ctx *gin.Context) {
 	err := ctx.ShouldBindJSON(&aula)
 	if err != nil {
 		ctx.JSON(400, gin.H{
-			"error": "cannot bind JSON: " + err.Error(),
+			"error": resposnseError + err.Error(),
 		})
 		return
 	}
@@ -96,7 +99,7 @@ func CreateAula(ctx *gin.Context) {
 	jsonData, err := json.Marshal(aula)
 	if err != nil {
 		ctx.JSON(400, gin.H{
-			"error": "cannot bind JSON: " + err.Error(),
+			"error": resposnseError + err.Error(),
 		})
 		return
 	}
@@ -135,7 +138,7 @@ func AtualizarPresença(ctx *gin.Context) {
 	err := ctx.ShouldBindJSON(&p)
 	if err != nil {
 		ctx.JSON(400, gin.H{
-			"error": "cannot bind JSON: " + err.Error(),
+			"error": resposnseError + err.Error(),
 		})
 		return
 	}

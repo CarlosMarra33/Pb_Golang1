@@ -28,7 +28,6 @@ func NewAlunoContoller(service services.AlunoService) *AlunoController {
 }
 
 var (
-	// Define o histograma para registrar os valores da duração de cada solicitação
 	requestDurationHistogram = prometheus.NewHistogram(prometheus.HistogramOpts{
 		Name:    "duracao_do_create",
 		Help:    "Duration of HTTP requests in seconds.",
@@ -43,6 +42,8 @@ var (
 	})
 )
 
+ var resposnseError = "cannot bind JSON: "
+
 func (ac *AlunoController) LoginAluno(ctx *gin.Context) {
 	// service := services.NewAlunoService(repositories.Alunorepository{})
 	var login dtos.Login
@@ -50,7 +51,7 @@ func (ac *AlunoController) LoginAluno(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(400, gin.H{
-			"error": "cannot bind JSON: " + err.Error(),
+			"error": resposnseError + err.Error(),
 		})
 		return
 	}
@@ -82,11 +83,13 @@ func (ac *AlunoController) CreateAluno(ctx *gin.Context) {
 		return
 	}
 
-	RequestsTotal.Inc()
+	
 
 	ac.alunoService.CreateAluno(&aluno)
 
 	ctx.Status(204)
+	
+	RequestsTotal.Inc()
 	duration := time.Since(start).Seconds()
 	requestDurationHistogram.Observe(duration)
 
@@ -99,7 +102,7 @@ func (ac *AlunoController) MarcarPresença(ctx *gin.Context) {
 	err := ctx.ShouldBindJSON(&presencaAluno)
 	if err != nil {
 		ctx.JSON(400, gin.H{
-			"error": "cannot bind JSON: " + err.Error(),
+			"error": resposnseError + err.Error(),
 		})
 		return
 	}
@@ -109,7 +112,7 @@ func (ac *AlunoController) MarcarPresença(ctx *gin.Context) {
 	jsonData, err := json.Marshal(presencaAluno)
 	if err != nil {
 		ctx.JSON(400, gin.H{
-			"error": "cannot bind JSON: " + err.Error(),
+			"error": resposnseError + err.Error(),
 		})
 		return
 	}
