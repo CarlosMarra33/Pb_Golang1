@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"application/controllers/dtos"
+	"application/database"
 	"application/models"
 	"fmt"
 
@@ -18,16 +19,16 @@ type Alunorepository struct {
 	db *gorm.DB
 }
 
-func NewAlunorepository(db *gorm.DB) *Alunorepository {
-	return &Alunorepository{db: db}
+func NewAlunorepository() *Alunorepository {
+	return &Alunorepository{db: database.GetDatabase()}
 }
 
 // checarEmail implements ProfessorRepository
-func (a *Alunorepository) ChecarEmailAluno(email string) bool {
+func (ar *Alunorepository) ChecarEmailAluno(email string) bool {
 	// db := database.GetDatabase()
 	var aluno models.Aluno
 	fmt.Println(email)
-	dberr := a.db.Where("email = ?", email).First(&aluno)
+	dberr := ar.db.Where("email = ?", email).First(&aluno)
 	fmt.Println(dberr)
 	// if dberr != nil{
 
@@ -43,17 +44,17 @@ func (a *Alunorepository) ChecarEmailAluno(email string) bool {
 }
 
 // salvar implements ProfessorRepository
-func (a *Alunorepository) SalvarAluno(aluno models.Aluno) {
+func (ar *Alunorepository) SalvarAluno(aluno models.Aluno) {
 	// db := database.GetDatabase()
 	var save = aluno
-	a.db.Create(&save)
+	ar.db.Create(&save)
 }
 
-func (a *Alunorepository) LoginAluno(login dtos.Login) (bool, models.Aluno) {
+func (ar *Alunorepository) LoginAluno(login dtos.Login) (bool, models.Aluno) {
 	// db := database.GetDatabase()
 	var aluno models.Aluno
 
-	dberr := a.db.Where("email =? AND senha =?", login.Email, login.Password).First(&aluno).Error
+	dberr := ar.db.Where("email =? AND password =?", login.Email, login.Password).First(&aluno).Error
 	if dberr != nil {
 		return false, aluno
 	}

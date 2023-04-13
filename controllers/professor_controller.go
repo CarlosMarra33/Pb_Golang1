@@ -3,7 +3,6 @@ package controllers
 import (
 	"application/controllers/dtos"
 	"application/models"
-	"application/repositories"
 	"application/services"
 	"bytes"
 	"encoding/json"
@@ -12,11 +11,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type ProfessorController struct {
+	profService services.ProfessorService
+}
 
+func NewProfessorController(service services.ProfessorService) *ProfessorController {
+	return &ProfessorController{
 
-func LoginProfessor(ctx *gin.Context) {
+		profService: service,
+	}
+}
+
+func (pc *ProfessorController) LoginProfessor(ctx *gin.Context) {
 	// db := database.GetDatabase()
-	service := services.NewProfessorService(repositories.ProfessorRepository{})
 	var login dtos.Login
 	err := ctx.ShouldBindJSON(&login)
 
@@ -26,8 +33,8 @@ func LoginProfessor(ctx *gin.Context) {
 		})
 		return
 	}
-	
-	token, err := service.LoginProfessor(&login)
+
+	token, err := pc.profService.LoginProfessor(&login)
 	// var prof models.Professor
 	// dberr := db.Where("email = ?", login.Email).First(&prof).Error
 	if err != nil {
@@ -57,9 +64,8 @@ func LoginProfessor(ctx *gin.Context) {
 	})
 }
 
-func CreateProfessor(c *gin.Context) {
+func (pc *ProfessorController) CreateProfessor(c *gin.Context) {
 	// db := database.GetDatabase()
-	service := services.NewProfessorService(repositories.ProfessorRepository{})
 	var professor models.Professor
 	err := c.ShouldBindJSON(&professor)
 
@@ -69,7 +75,7 @@ func CreateProfessor(c *gin.Context) {
 		})
 		return
 	}
-	service.CreateProfessor(&professor)
+	pc.profService.CreateProfessor(&professor)
 	// err = db.Create(&professor).Error
 
 	// if err != nil {
@@ -82,7 +88,7 @@ func CreateProfessor(c *gin.Context) {
 	c.Status(204)
 }
 
-func CreateAula(ctx *gin.Context) {
+func (pc *ProfessorController) CreateAula(ctx *gin.Context) {
 
 	url := "http://localhost:5001/api/aula/criar"
 
@@ -131,7 +137,7 @@ func CreateAula(ctx *gin.Context) {
 
 }
 
-func AtualizarPresença(ctx *gin.Context) {
+func (pc *ProfessorController) AtualizarPresença(ctx *gin.Context) {
 	url := "http://localhost:5001/api/presenca/atualizar"
 
 	var p dtos.PresencaAluno

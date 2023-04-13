@@ -5,6 +5,8 @@ import (
 	"application/database"
 	"application/models"
 	"fmt"
+
+	"gorm.io/gorm"
 )
 
 // type IProfessorRepository interface {
@@ -13,16 +15,23 @@ import (
 // 	ChecarEmailSenha(dtos.Login) (bool, models.Professor)
 // }
 
-type ProfessorRepository struct{}
+type ProfessorRepository struct {
+	db *gorm.DB
+}
+
+func NewProfessorRepository() *ProfessorRepository {
+	return &ProfessorRepository{
+		db: database.GetDatabase()}
+
+}
 
 // checarEmail implements ProfessorRepository
-func (p *ProfessorRepository) ChecarEmail(email string) bool {
-	db := database.GetDatabase()
+func (pr *ProfessorRepository) ChecarEmail(email string) bool {
 	var professor models.Professor
 	// fmt.Println(email)
-	dberr := db.Where("email = ?", email).First(&professor).Error
+	dberr := pr.db.Where("email = ?", email).First(&professor).Error
 	if dberr != nil {
-		fmt.Println("erro da chamada",dberr, "professor  ", professor )
+		fmt.Println("erro da chamada", dberr, "professor  ", professor)
 		return true
 	}
 	// fmt.Println(professor)
@@ -33,17 +42,15 @@ func (p *ProfessorRepository) ChecarEmail(email string) bool {
 }
 
 // salvar implements ProfessorRepository
-func (p *ProfessorRepository) Salvar(professor models.Professor) {
-	db := database.GetDatabase()
+func (pr *ProfessorRepository) Salvar(professor models.Professor) {
 	var prof = professor
-	db.Create(&prof)
+	pr.db.Create(&prof)
 }
 
 func (p *ProfessorRepository) ChecarEmailSenha(login dtos.Login) (bool, models.Professor) {
-	db := database.GetDatabase()
 	var professor models.Professor
 
-	dberr := db.Where("email =? AND senha =?", login.Email, login.Password).First(&professor).Error
+	dberr := p.db.Where("email =? AND password =?", login.Email, login.Password).First(&professor).Error
 	if dberr != nil {
 		return false, professor
 	}

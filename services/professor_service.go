@@ -18,20 +18,20 @@ func NewProfessorService(repo repositories.ProfessorRepository) *ProfessorServic
 }
 
 // CreateProfessor implements ProfessorService
-func (p *ProfessorService) CreateProfessor(professor *models.Professor) string {
+func (ps *ProfessorService) CreateProfessor(professor *models.Professor) string {
 	fmt.Println(professor)
-	check := p.repo.ChecarEmail(professor.Email)
+	check := ps.repo.ChecarEmail(professor.Email)
 	fmt.Println(check)
 	if check {
 		return "user ja exieste"
 	}
-	p.repo.Salvar(*professor)
+	ps.repo.Salvar(*professor)
 	return "ok"
 }
 
 // LoginProfessor implements ProfessorService
-func (p *ProfessorService) LoginProfessor(login *dtos.Login) (string, error) {
-	chek, professor := p.repo.ChecarEmailSenha(*login)
+func (ps *ProfessorService) LoginProfessor(login *dtos.Login) (string, error) {
+	chek, professor := ps.repo.ChecarEmailSenha(*login)
 
 	if !chek {
 		return "usuário ou senha incorrect", nil

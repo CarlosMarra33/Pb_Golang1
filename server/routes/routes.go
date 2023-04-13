@@ -8,17 +8,14 @@ import (
 
 	// "application/controllers"
 	"application/controllers"
-	"application/database"
 	"application/repositories"
 	"application/server/middlewares"
 	"application/services"
 )
 
-
-
 func ConfigRoutes(router *gin.Engine) *gin.Engine {
-	db := database.GetDatabase()
-	alunoController := controllers.NewAlunoContoller(*services.NewAlunoService(*repositories.NewAlunorepository(db)))
+	alunoController := controllers.NewAlunoContoller(*services.NewAlunoService(*repositories.NewAlunorepository()))
+	professorController := controllers.NewProfessorController(*services.NewProfessorService(*repositories.NewProfessorRepository()))
 
 	router.GET("/metrics", prometheusHandler())
 	main := router.Group("/api")
@@ -27,10 +24,10 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 		{
 
 			user.POST("/createAluno", alunoController.CreateAluno)
-			user.POST("/createProfessor", controllers.CreateProfessor)
+			user.POST("/createProfessor", professorController.CreateProfessor)
 
 			user.GET("/loginAluno", alunoController.LoginAluno)
-			user.GET("/loginProfessor", controllers.LoginProfessor)
+			user.GET("/loginProfessor", professorController.LoginProfessor)
 		}
 		aluno := main.Group("aluno", middlewares.Auth())
 		{
@@ -41,20 +38,19 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 		professor := main.Group("professor", middlewares.Auth())
 		{
 			// professor.POST("/create", controllers.CreateProfessor)
-			professor.POST("/create/aula", controllers.CreateAula)
-			professor.PUT("/atualizar", controllers.AtualizarPresença)
+			professor.POST("/create/aula", professorController.CreateAula)
+			professor.PUT("/atualizar", professorController.AtualizarPresença)
 		}
 	}
 	return router
 }
 
-
 func prometheusHandler() gin.HandlerFunc {
-    // Crie um http.Handler a partir da função Handler() do pacote promhttp.
-    promHandler := promhttp.Handler()
+	// Crie um http.Handler a partir da função Handler() do pacote promhttp.
+	promHandler := promhttp.Handler()
 
-    // Retorne um handler do tipo gin.HandlerFunc que chama o http.Handler criado acima.
-    return func(c *gin.Context) {
-        promHandler.ServeHTTP(c.Writer, c.Request)
-    }
+	// Retorne um handler do tipo gin.HandlerFunc que chama o http.Handler criado acima.
+	return func(c *gin.Context) {
+		promHandler.ServeHTTP(c.Writer, c.Request)
+	}
 }

@@ -96,7 +96,7 @@ func (ac *AlunoController) CreateAluno(ctx *gin.Context) {
 }
 
 func (ac *AlunoController) MarcarPresença(ctx *gin.Context) {
-	url := "http://localhost:5001/api/aula/presente"
+	url := "http://localhost:5001/api/presenca/presente"
 	var presencaAluno dtos.PresencaAluno
 
 	err := ctx.ShouldBindJSON(&presencaAluno)

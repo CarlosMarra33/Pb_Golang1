@@ -11,22 +11,28 @@ type AlunoService struct {
 	repo repositories.Alunorepository
 }
 
+func NewAlunoService(repo repositories.Alunorepository) *AlunoService {
+	return &AlunoService{
+		repo: repo,
+	}
+}
+
 // CreateProfessor implements ProfessorService
-func (a *AlunoService) CreateAluno(aluno *models.Aluno) string {
+func (as *AlunoService) CreateAluno(aluno *models.Aluno) string {
 	var email = aluno.Email
-	check := a.repo.ChecarEmailAluno(email)
+	check := as.repo.ChecarEmailAluno(email)
 
 	fmt.Println("teste do service  ",check)
 	if check {
 		return "user ja exieste"
 	}
-	a.repo.SalvarAluno(*aluno)
+	as.repo.SalvarAluno(*aluno)
 	return "ok"
 }
 
 // LoginProfessor implements ProfessorService
-func (a *AlunoService) LoginAluno(login *dtos.Login) (string, error) {
-	chek, aluno := a.repo.LoginAluno(*login)
+func (as *AlunoService) LoginAluno(login *dtos.Login) (string, error) {
+	chek, aluno := as.repo.LoginAluno(*login)
 
 	if !chek {
 		return "usuário ou senha incorrect", nil
@@ -40,8 +46,4 @@ func (a *AlunoService) LoginAluno(login *dtos.Login) (string, error) {
 	return token, nil
 }
 
-func NewAlunoService(repo repositories.Alunorepository) *AlunoService {
-	return &AlunoService{
-		repo: repo,
-	}
-}
+
