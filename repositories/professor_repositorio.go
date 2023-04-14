@@ -4,7 +4,6 @@ import (
 	"application/controllers/dtos"
 	"application/database"
 	"application/models"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -29,11 +28,11 @@ func NewProfessorRepository() *ProfessorRepository {
 func (pr *ProfessorRepository) ChecarEmail(email string) bool {
 	var professor models.Professor
 	// fmt.Println(email)
-	dberr := pr.db.Where("email = ?", email).First(&professor).Error
-	if dberr != nil {
-		fmt.Println("erro da chamada", dberr, "professor  ", professor)
-		return true
-	}
+	pr.db.Where("email = ?", email).First(&professor)
+	// if dberr != nil {
+	// 	fmt.Println("erro da chamada", dberr, "professor  ", professor)
+	// 	return true
+	// }
 	// fmt.Println(professor)
 	if professor.Email == email {
 		return true

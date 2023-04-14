@@ -2,10 +2,10 @@ version: "3.7"
 
 services:
   db:
-    build:
-      context: .
-      dockerfile: .dockerfile
-    # image: github.com/CarlosMarra33/Pb_Golang1
+    # build:
+    #   context: .
+    #   dockerfile: .dockerfile
+    image: postgres:13.2
     container_name: POSTGRES_DB_container
     restart: unless-stopped
     tty: true

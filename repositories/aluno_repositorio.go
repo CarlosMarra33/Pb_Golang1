@@ -28,12 +28,7 @@ func (ar *Alunorepository) ChecarEmailAluno(email string) bool {
 	// db := database.GetDatabase()
 	var aluno models.Aluno
 	fmt.Println(email)
-	dberr := ar.db.Where("email = ?", email).First(&aluno)
-	fmt.Println(dberr)
-	// if dberr != nil{
-
-	// 	return true
-	// }
+	ar.db.Where("email = ?", email).First(&aluno)
 
 	if aluno.Email == email {
 
