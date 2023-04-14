@@ -7,13 +7,13 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-type jwtService struct {
+type TokenService struct {
 	secretKey string
 	issure    string
 }
 
-func NewJWTService() *jwtService {
-	return &jwtService{
+func NewTokenService() *TokenService {
+	return &TokenService{
 		secretKey: "secret-key",
 		issure:    "pb-api",
 	}
@@ -24,7 +24,7 @@ type Claim struct {
 	jwt.StandardClaims
 }
 
-func (s *jwtService) GenerateToken(id uint) (string, error) {
+func (s *TokenService) GenerateToken(id uint) (string, error) {
 	claim := &Claim{
 		id,
 		jwt.StandardClaims{
@@ -44,7 +44,7 @@ func (s *jwtService) GenerateToken(id uint) (string, error) {
 	return t, nil
 }
 
-func (s *jwtService) ValidateToken(token string) bool {
+func (s *TokenService) ValidateToken(token string) bool {
 	_, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
 		if _, isValid := t.Method.(*jwt.SigningMethodHMAC); !isValid {
 			return nil, fmt.Errorf("invalid token: %v", token)

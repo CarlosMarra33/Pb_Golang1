@@ -23,7 +23,6 @@ func NewProfessorController(service services.ProfessorService) *ProfessorControl
 }
 
 func (pc *ProfessorController) LoginProfessor(ctx *gin.Context) {
-	// db := database.GetDatabase()
 	var login dtos.Login
 	err := ctx.ShouldBindJSON(&login)
 
@@ -35,8 +34,7 @@ func (pc *ProfessorController) LoginProfessor(ctx *gin.Context) {
 	}
 
 	token, err := pc.profService.LoginProfessor(&login)
-	// var prof models.Professor
-	// dberr := db.Where("email = ?", login.Email).First(&prof).Error
+
 	if err != nil {
 		ctx.JSON(400, gin.H{
 			"error": "cannot find user",
@@ -44,28 +42,12 @@ func (pc *ProfessorController) LoginProfessor(ctx *gin.Context) {
 		return
 	}
 
-	// if login.Password != prof.Password {
-	// 	ctx.JSON(401, gin.H{
-	// 		"error": "invalid credentials",
-	// 	})
-	// 	return
-	// }
-
-	// token, err := services.NewJWTService().GenerateToken(prof.ProfessorId)
-	// if err != nil {
-	// 	ctx.JSON(500, gin.H{
-	// 		"error": err.Error(),
-	// 	})
-	// 	return
-	// }
-
 	ctx.JSON(200, gin.H{
 		"token": token,
 	})
 }
 
 func (pc *ProfessorController) CreateProfessor(c *gin.Context) {
-	// db := database.GetDatabase()
 	var professor models.Professor
 	err := c.ShouldBindJSON(&professor)
 
@@ -76,14 +58,6 @@ func (pc *ProfessorController) CreateProfessor(c *gin.Context) {
 		return
 	}
 	pc.profService.CreateProfessor(&professor)
-	// err = db.Create(&professor).Error
-
-	// if err != nil {
-	// 	c.JSON(400, gin.H{
-	// 		"error": "Problema ao criar aluno" + err.Error(),
-	// 	})
-	// 	return
-	// }
 
 	c.Status(204)
 }

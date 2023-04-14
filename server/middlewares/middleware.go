@@ -16,12 +16,11 @@ func Auth() gin.HandlerFunc {
 
 		token := header[len(bearerSchema):]
 
-		if !services.NewJWTService().ValidateToken(token) {
+		if !services.NewTokenService().ValidateToken(token) {
 			c.AbortWithStatus(401)
 		}
 	}
 }
-
 
 // func ValidateAlunoRole(c *gin.Context) bool {
 // 	Token := c.GetHeader("Authorization")

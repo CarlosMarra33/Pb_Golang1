@@ -37,7 +37,6 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 
 		professor := main.Group("professor", middlewares.Auth())
 		{
-			// professor.POST("/create", controllers.CreateProfessor)
 			professor.POST("/create/aula", professorController.CreateAula)
 			professor.PUT("/atualizar", professorController.AtualizarPresença)
 		}
@@ -46,10 +45,8 @@ func ConfigRoutes(router *gin.Engine) *gin.Engine {
 }
 
 func prometheusHandler() gin.HandlerFunc {
-	// Crie um http.Handler a partir da função Handler() do pacote promhttp.
 	promHandler := promhttp.Handler()
 
-	// Retorne um handler do tipo gin.HandlerFunc que chama o http.Handler criado acima.
 	return func(c *gin.Context) {
 		promHandler.ServeHTTP(c.Writer, c.Request)
 	}

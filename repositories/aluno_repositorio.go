@@ -9,11 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// type IProfessorRepository interface {
-// 	Salvar(professor models.Professor)
-// 	ChecarEmail(email string) bool
-// 	ChecarEmailSenha(dtos.Login) (bool, models.Professor)
-// }
+
 
 type Alunorepository struct {
 	db *gorm.DB
@@ -23,9 +19,7 @@ func NewAlunorepository() *Alunorepository {
 	return &Alunorepository{db: database.GetDatabase()}
 }
 
-// checarEmail implements ProfessorRepository
 func (ar *Alunorepository) ChecarEmailAluno(email string) bool {
-	// db := database.GetDatabase()
 	var aluno models.Aluno
 	fmt.Println(email)
 	ar.db.Where("email = ?", email).First(&aluno)
@@ -38,22 +32,18 @@ func (ar *Alunorepository) ChecarEmailAluno(email string) bool {
 	return false
 }
 
-// salvar implements ProfessorRepository
 func (ar *Alunorepository) SalvarAluno(aluno models.Aluno) {
-	// db := database.GetDatabase()
 	var save = aluno
 	ar.db.Create(&save)
 }
 
 func (ar *Alunorepository) LoginAluno(login dtos.Login) (bool, models.Aluno) {
-	// db := database.GetDatabase()
 	var aluno models.Aluno
 
 	dberr := ar.db.Where("email =? AND password =?", login.Email, login.Password).First(&aluno).Error
 	if dberr != nil {
 		return false, aluno
 	}
-	// se for diferente da false
 	if aluno.Email != login.Email || aluno.Password != login.Password {
 		return false, aluno
 	}

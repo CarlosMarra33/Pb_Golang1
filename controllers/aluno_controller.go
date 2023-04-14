@@ -42,10 +42,9 @@ var (
 	})
 )
 
- var resposnseError = "cannot bind JSON: "
+var resposnseError = "cannot bind JSON: "
 
 func (ac *AlunoController) LoginAluno(ctx *gin.Context) {
-	// service := services.NewAlunoService(repositories.Alunorepository{})
 	var login dtos.Login
 	err := ctx.ShouldBindJSON(&login)
 
@@ -70,7 +69,6 @@ func (ac *AlunoController) LoginAluno(ctx *gin.Context) {
 }
 
 func (ac *AlunoController) CreateAluno(ctx *gin.Context) {
-	// service := services.NewAlunoService(repositories.Alunorepository{})
 
 	start := time.Now()
 	var aluno models.Aluno
@@ -83,12 +81,10 @@ func (ac *AlunoController) CreateAluno(ctx *gin.Context) {
 		return
 	}
 
-	
-
 	ac.alunoService.CreateAluno(&aluno)
 
 	ctx.Status(204)
-	
+
 	RequestsTotal.Inc()
 	duration := time.Since(start).Seconds()
 	requestDurationHistogram.Observe(duration)

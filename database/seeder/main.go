@@ -1,14 +1,13 @@
 package seeder
 
 import (
+	"application/database"
 	"bufio"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"runtime"
-	"application/database"
-	
 )
 
 func main() {

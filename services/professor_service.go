@@ -17,7 +17,6 @@ func NewProfessorService(repo repositories.ProfessorRepository) *ProfessorServic
 	}
 }
 
-// CreateProfessor implements ProfessorService
 func (ps *ProfessorService) CreateProfessor(professor *models.Professor) string {
 	fmt.Println(professor)
 	check := ps.repo.ChecarEmail(professor.Email)
@@ -29,14 +28,13 @@ func (ps *ProfessorService) CreateProfessor(professor *models.Professor) string 
 	return "ok"
 }
 
-// LoginProfessor implements ProfessorService
 func (ps *ProfessorService) LoginProfessor(login *dtos.Login) (string, error) {
 	chek, professor := ps.repo.ChecarEmailSenha(*login)
 
 	if !chek {
 		return "usuário ou senha incorrect", nil
 	}
-	token, err := NewJWTService().GenerateToken(professor.ProfessorId)
+	token, err := NewTokenService().GenerateToken(professor.ProfessorId)
 	if err != nil {
 
 		return "", err
@@ -44,5 +42,3 @@ func (ps *ProfessorService) LoginProfessor(login *dtos.Login) (string, error) {
 
 	return token, nil
 }
-
-

@@ -22,7 +22,7 @@ func (as *AlunoService) CreateAluno(aluno *models.Aluno) string {
 	var email = aluno.Email
 	check := as.repo.ChecarEmailAluno(email)
 
-	fmt.Println("teste do service  ",check)
+	fmt.Println("teste do service  ", check)
 	if check {
 		return "user ja exieste"
 	}
@@ -37,7 +37,7 @@ func (as *AlunoService) LoginAluno(login *dtos.Login) (string, error) {
 	if !chek {
 		return "usuário ou senha incorrect", nil
 	}
-	token, err := NewJWTService().GenerateToken(aluno.AlunoId)
+	token, err := NewTokenService().GenerateToken(aluno.AlunoId)
 	if err != nil {
 
 		return "", err
@@ -46,12 +46,11 @@ func (as *AlunoService) LoginAluno(login *dtos.Login) (string, error) {
 	return token, nil
 }
 
-func (as *AlunoService) VerificarAluno(idAluno uint) (string) {
+func (as *AlunoService) VerificarAluno(idAluno uint) string {
 	response := as.repo.VerificarAlunoId(idAluno)
-	if response{
+	if response {
 		return "ok"
 	}
 	return "Aluno não encontrado"
 
 }
-
