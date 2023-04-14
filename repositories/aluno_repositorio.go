@@ -59,3 +59,12 @@ func (ar *Alunorepository) LoginAluno(login dtos.Login) (bool, models.Aluno) {
 	}
 	return true, aluno
 }
+
+func (ar *Alunorepository) VerificarAlunoId(idAluno uint) (bool){
+	var aluno models.Aluno
+	response := ar.db.Where(idAluno).First(&aluno)
+	if response != nil {
+		return true
+	}
+	return false
+}

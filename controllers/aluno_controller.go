@@ -107,6 +107,14 @@ func (ac *AlunoController) MarcarPresença(ctx *gin.Context) {
 		return
 	}
 
+	check := ac.alunoService.VerificarAluno(uint(presencaAluno.IdAluno))
+	if check != "ok" {
+		ctx.JSON(400, gin.H{
+			"error": check,
+		})
+		return
+	}
+
 	fmt.Println(presencaAluno)
 
 	jsonData, err := json.Marshal(presencaAluno)

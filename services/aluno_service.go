@@ -46,4 +46,12 @@ func (as *AlunoService) LoginAluno(login *dtos.Login) (string, error) {
 	return token, nil
 }
 
+func (as *AlunoService) VerificarAluno(idAluno uint) (string) {
+	response := as.repo.VerificarAlunoId(idAluno)
+	if response{
+		return "ok"
+	}
+	return "Aluno não encontrado"
+
+}
 
