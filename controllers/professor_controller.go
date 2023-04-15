@@ -45,6 +45,7 @@ func (pc *ProfessorController) LoginProfessor(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{
 		"token": token,
 	})
+
 }
 
 func (pc *ProfessorController) CreateProfessor(c *gin.Context) {

@@ -16,8 +16,11 @@ func TestCreateProfessor(t *testing.T) {
 
 	// Criar um professor
 	professor := &models.Professor{
-		Nome:  "John Doe",
-		Email: "john.doe@example.com",
+		ProfessorId: 1,
+		Pessoa: models.Pessoa{
+			Name:  "John Doe",
+			Email: "john.doe@example.com",
+		},
 	}
 
 	// Testar a criação de um professor
