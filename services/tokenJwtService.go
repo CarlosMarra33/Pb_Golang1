@@ -28,7 +28,7 @@ func (s *TokenService) GenerateToken(id uint) (string, error) {
 	claim := &Claim{
 		id,
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * 2400000).Unix(),
 			Issuer:    s.issure,
 			IssuedAt:  time.Now().Unix(),
 		},

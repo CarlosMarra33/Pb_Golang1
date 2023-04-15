@@ -4,10 +4,10 @@ import (
 	"application/controllers/dtos"
 	"application/database"
 	"application/models"
+	"fmt"
 
 	"gorm.io/gorm"
 )
-
 
 type ProfessorRepository struct {
 	db *gorm.DB
@@ -45,4 +45,18 @@ func (p *ProfessorRepository) ChecarEmailSenha(login dtos.Login) (bool, models.P
 		return false, professor
 	}
 	return true, professor
+}
+
+func (p *ProfessorRepository) VarificarListaAlunos(alunosid []uint) (bool, error) {
+
+	// var aluno models.Aluno
+	var alunos []models.Aluno
+	p.db.Find(&alunos, "aluno_id IN (?)", alunosid)
+
+	fmt.Println(len(alunos))
+
+	if len(alunos) != len(alunosid) {
+		return false, nil
+	}
+	return true, nil
 }

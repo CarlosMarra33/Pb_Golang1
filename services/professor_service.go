@@ -17,6 +17,20 @@ func NewProfessorService(repo repositories.ProfessorRepository) *ProfessorServic
 	}
 }
 
+func (ps *ProfessorService) ValidarLista(alunos []uint) string {
+
+	isValid, err := ps.repo.VarificarListaAlunos(alunos)
+
+	if err != nil {
+		return err.Error()
+	}
+	if !isValid {
+		return "Lista de Alunos não existe"
+	}
+
+	return "ok"
+}
+
 func (ps *ProfessorService) CreateProfessor(professor *models.Professor) string {
 	fmt.Println(professor)
 	check := ps.repo.ChecarEmail(professor.Email)

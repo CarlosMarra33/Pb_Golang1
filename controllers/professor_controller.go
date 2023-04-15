@@ -77,6 +77,14 @@ func (pc *ProfessorController) CreateAula(ctx *gin.Context) {
 		return
 	}
 
+	isValid := pc.profService.ValidarLista(aula.Alunos)
+	if isValid != "ok" {
+		ctx.JSON(400, gin.H{
+			"error": isValid,
+		})
+		return
+	}
+
 	jsonData, err := json.Marshal(aula)
 	if err != nil {
 		ctx.JSON(400, gin.H{
